@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
   }
   
   // 2. Save actual raw message metadata mapping
-  await redis.set(`message:${id}`, JSON.stringify(message), { EX: 86400 }); // 24 hours TTL
+  await redis.setex(`message:${id}`, 86400, JSON.stringify(message)); // 24 hours TTL
   
   // 3. Save mock HTML content
   const htmlContent = `
@@ -86,11 +86,11 @@ export async function GET(req: NextRequest) {
       </body>
     </html>
   `;
-  await redis.set(`message_body:${id}`, htmlContent, { EX: 86400 });
+  await redis.setex(`message_body:${id}`, 86400, htmlContent);
 
   // 3.5. Mock Attachment Buffer
   const dummyPdfBuffer = Buffer.from("JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQp4nDPQM1Qo5ypUMFAwAAAqwwzD", "base64");
-  await redis.set(`attachment:${id}:0`, dummyPdfBuffer.toString('base64'), { EX: 86400 });
+  await redis.setex(`attachment:${id}:0`, 86400, dummyPdfBuffer.toString('base64'));
 
   // 4. Trigger SSE Event Publisher for real-time frontend updates
   const eventPayload = JSON.stringify({
