@@ -1,0 +1,70 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_DOMAIN: ${DOMAIN:-thelol.me}
+    container_name: mailol-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - mailol-net
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - DOMAIN=${DOMAIN:-thelol.me}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-hash-value-for-mailol-production}
+      - JWT_EXPIRY=${JWT_EXPIRY:-3600}
+      - DEFAULT_QUOTA=${DEFAULT_QUOTA:-41943040}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  mta:
+    build:
+      context: .
+      dockerfile: Dockerfile.haraka
+      args:
+        DOMAIN: ${DOMAIN:-thelol.me}
+    container_name: mailol-mta
+    restart: unless-stopped
+    ports:
+      - "25:25"
+    networks:
+      - mailol-net
+    environment:
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: mailol-redis
+    restart: unless-stopped
+    networks:
+      - mailol-net
+    volumes:
+      - redis-data:/data
+    command: >
+      redis-server
+      --maxmemory 1gb
+      --maxmemory-policy volatile-ttl
+      --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+    name: redis_data
+    driver: local
+
+networks:
+  mailol-net:
+    name: mailol-net
+    driver: bridge

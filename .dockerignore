@@ -1,0 +1,14 @@
+.git
+.next
+node_modules
+npm-debug.log*
+.env
+.env.*
+*.md
+.DS_Store
+.vercel
+.gitignore
+docker-compose.yml
+Dockerfile
+Dockerfile.haraka
+.dockerignore

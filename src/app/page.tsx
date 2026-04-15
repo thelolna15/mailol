@@ -1,65 +1,82 @@
-import Image from "next/image";
+"use client";
+
+import React from "react";
+import { useMailStore } from "@/store/useMailStore";
+import { EmailList } from "@/components/mail/EmailList";
+import { EmailViewer } from "@/components/mail/EmailViewer";
+import { motion } from "framer-motion";
 
 export default function Home() {
+  const { messages, selectedId, token, setCreateModal, setLoginModal } = useMailStore();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+     setMounted(true);
+  }, []);
+  
+  if (selectedId) {
+     return <EmailViewer />;
+  }
+  
+  if (messages.length > 0) {
+     return <EmailList />;
+  }
+
+  // Null Routing Default empty state behavior
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="relative flex flex-col items-center justify-center h-full p-8 text-center min-h-125 overflow-hidden">
+      
+      <motion.div 
+         initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
+         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+         transition={{ duration: 0.8, ease: "easeOut" }}
+         className="relative z-10 w-full flex flex-col items-center"
+      >
+        <h1 className="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-500 drop-shadow-lg">
+          {(!mounted || !token) ? "Welcome to MaiLoL" : "Temp Mail"}
+        </h1>
+        
+        {mounted && token && (
+           <div className="relative mb-8 flex justify-center animate-in fade-in zoom-in duration-500">
+             <div className="w-32 h-32 md:w-48 md:h-48 bg-surface-hover rounded-full flex items-center justify-center opacity-70">
+               <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-accent-primary drop-shadow-md w-16 md:w-24">
+                 <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/>
+                 <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/>
+               </svg>
+             </div>
+           </div>
+        )}
+        
+        <p className="max-w-lg text-secondary leading-relaxed mx-auto text-[15px] backdrop-blur-xl bg-background/40 p-4 rounded-2xl border border-white/5">
+          Use our free temporary disposable email service to protect your personal email address from spam, bots, phishing, and other online abuse. Get a secure, instant, and fast temporary email now.
+        </p>
+
+        {mounted && !token && (
+           <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
+           >
+              <motion.button 
+                 whileHover={{ scale: 1.03 }}
+                 whileTap={{ scale: 0.97 }}
+                 onClick={() => setCreateModal(true)} 
+                 className="px-8 py-3.5 bg-accent-primary text-white text-[15px] font-bold rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] hover:bg-blue-500 transition-colors w-full sm:w-auto backdrop-blur-md"
+              >
+                 Create an account
+              </motion.button>
+              <motion.button 
+                 whileHover={{ scale: 1.03 }}
+                 whileTap={{ scale: 0.97 }}
+                 onClick={() => setLoginModal(true)} 
+                 className="px-8 py-3.5 bg-surface/50 border border-surface-border text-primary text-[15px] font-bold rounded-xl hover:bg-surface-hover transition-colors w-full sm:w-auto backdrop-blur-md"
+              >
+                 Login Existing
+              </motion.button>
+           </motion.div>
+        )}
+      </motion.div>
     </div>
   );
 }
