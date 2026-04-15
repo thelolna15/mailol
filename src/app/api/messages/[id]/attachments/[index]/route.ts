@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const contentType = targetAttachment?.contentType || "application/octet-stream";
   const filename = targetAttachment?.filename || "attachment";
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
       "Content-Type": contentType,
