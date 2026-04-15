@@ -58,7 +58,7 @@ exports.hook_data_post = function (next, connection) {
                         return processParsedEmail(parsed, toLinks, txn, plugin);
                     })
                     .then(() => {
-                        next();
+                        next(OK);
                     })
                     .catch((err) => {
                         plugin.logerror("Failed to process email: " + err.message);

@@ -30,8 +30,8 @@ RUN echo "25" > /app/haraka/config/smtp.ini
 ARG DOMAIN=thelol.me
 RUN echo "${DOMAIN}" > /app/haraka/config/host_list
 
-# 3. Enable our plugin in the plugin chain
-RUN echo "mailol_processor" >> /app/haraka/config/plugins
+# 3. Write clean plugin list (no queue/smtp_forward — we handle delivery in mailol_processor)
+RUN printf "mail_from.is_resolvable\nrcpt_to.in_host_list\nmailol_processor\n" > /app/haraka/config/plugins
 
 # 4. Set me (HELO hostname)
 RUN echo "mail.${DOMAIN}" > /app/haraka/config/me
