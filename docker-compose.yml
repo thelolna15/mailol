@@ -47,7 +47,7 @@ services:
     networks:
       - mailol-net
     volumes:
-      - redis-data:/data
+      - redis_data:/data
     command: >
       redis-server
       --maxmemory 1gb
