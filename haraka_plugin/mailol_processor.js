@@ -19,6 +19,10 @@ exports.register = function () {
     redis = new Redis(redisUrl);
     publisher = new Redis(redisUrl);
 
+    redis.on('error', (err) => {
+        plugin.logerror("Redis connection error: " + err.message);
+    });
+
     plugin.loginfo("Mailol Processor Plugin initialized against Redis");
 }
 
@@ -37,32 +41,34 @@ exports.hook_data_post = function (next, connection) {
         return next();
     }
 
-    // Convert raw message stream to buffer for simpleParser
-    const stream = txn.message_stream;
-    let buffer = '';
+    // Collect raw email data from Haraka's message_stream using get_data
+    const chunks = [];
 
-    stream.on('data', function (chunk) {
-        buffer += chunk;
-    });
-
-    stream.on('end', function () {
-        simpleParser(buffer, async (err, parsed) => {
-            if (err) {
-                plugin.logerror("Failed to parse email: " + err.message);
-                return next();
+    txn.message_stream.pipe(
+        new (require('stream').Writable)({
+            write(chunk, encoding, callback) {
+                chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+                callback();
+            },
+            final(callback) {
+                const rawEmail = Buffer.concat(chunks);
+                
+                simpleParser(rawEmail)
+                    .then((parsed) => {
+                        return processParsedEmail(parsed, toLinks, txn, plugin);
+                    })
+                    .then(() => {
+                        next();
+                    })
+                    .catch((err) => {
+                        plugin.logerror("Failed to process email: " + err.message);
+                        next();
+                    });
+                
+                callback();
             }
-
-            try {
-               await processParsedEmail(parsed, toLinks, txn, plugin);
-            } catch(e) {
-               plugin.logerror("Failed saving email to redis: " + e.message);
-            }
-            
-            // Allow the transaction to complete mapping (Optional: send OK or Reject)
-            // By returning next(), Haraka considers it delivered/accepted.
-            next();
-        });
-    });
+        })
+    );
 }
 
 async function processParsedEmail(parsed, toLinks, txn, plugin) {
@@ -96,7 +102,8 @@ async function processParsedEmail(parsed, toLinks, txn, plugin) {
                    index: i
                 });
                 if (att.content) {
-                   await redis.setBuffer(`attachment:${id}:${i}`, att.content, 'EX', 86400);
+                   // Store attachment as base64 string with TTL
+                   await redis.setex(`attachment:${id}:${i}`, 86400, att.content.toString('base64'));
                 }
             }
         }
@@ -118,7 +125,7 @@ async function processParsedEmail(parsed, toLinks, txn, plugin) {
              "isDeleted": false,
              "hasAttachments": attachmentMetadata.length > 0,
              "attachments": attachmentMetadata,
-             "size": Buffer.byteLength(txn.body.bodytext || '', 'utf8'), 
+             "size": Buffer.byteLength(parsed.html || parsed.text || '', 'utf8'), 
              "downloadUrl": `/messages/${id}/download`,
              "createdAt": timestamp,
              "updatedAt": timestamp
@@ -141,11 +148,11 @@ async function processParsedEmail(parsed, toLinks, txn, plugin) {
         }
         
         // 2. Save document metadata
-        await redis.set(`message:${id}`, JSON.stringify(message), 'EX', 86400);
+        await redis.setex(`message:${id}`, 86400, JSON.stringify(message));
         
         // 3. Save raw payload explicitly isolated
         const rawContent = parsed.html || parsed.textAsHtml || parsed.text || "<p>No content given.</p>";
-        await redis.set(`message_body:${id}`, rawContent, 'EX', 86400);
+        await redis.setex(`message_body:${id}`, 86400, rawContent);
 
         // 4. Send EventStream Trigger mapped back to our Next.js edge listener
         const eventPayload = JSON.stringify({
