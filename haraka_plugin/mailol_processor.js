@@ -31,6 +31,11 @@ exports.hook_data = function (next, connection) {
     next();
 }
 
+// Tell Haraka the message is "queued" — we already stored it in Redis during data_post
+exports.hook_queue = function (next, connection) {
+    next(OK);
+}
+
 exports.hook_data_post = function (next, connection) {
     const plugin = this;
     const txn = connection.transaction;
