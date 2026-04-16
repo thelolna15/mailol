@@ -42,6 +42,7 @@ interface MailState {
   markMessageSeen: (id: string) => void;
   setSelectedId: (id: string | null) => void;
   switchAccount: (address: string, password?: string) => Promise<void>;
+  tryAutoRelogin: () => Promise<void>;
 }
 
 export const useMailStore = create<MailState>((set, get) => ({
@@ -59,8 +60,24 @@ export const useMailStore = create<MailState>((set, get) => ({
   init: () => {
      const token = get().token;
      if (token) {
-        get().fetchProfile();
-        get().fetchMessages();
+        // Validate token by fetching profile; if expired, try auto-relogin
+        fetch("/api/me", { headers: { "Authorization": `Bearer ${token}` } })
+          .then(res => {
+             if (res.ok) {
+                res.json().then(data => set({ account: data }));
+                get().fetchMessages();
+             } else {
+                // Token expired — try auto-relogin with first saved account
+                get().tryAutoRelogin();
+             }
+          })
+          .catch(() => get().tryAutoRelogin());
+     } else {
+        // No token at all — try auto-relogin with saved accounts
+        const saved = get().savedAccounts;
+        if (saved.length > 0) {
+           get().tryAutoRelogin();
+        }
      }
   },
 
@@ -121,7 +138,8 @@ export const useMailStore = create<MailState>((set, get) => ({
       if (res.ok) {
          set({ account: await res.json() });
       } else {
-         get().logout(); 
+         // Token expired — try to auto-relogin instead of hard logout
+         await get().tryAutoRelogin(); 
       }
     } catch(err) {
        console.error("fetchProfile err", err);
@@ -213,5 +231,35 @@ export const useMailStore = create<MailState>((set, get) => ({
      } catch(err) {
        alert("Failed to auto-switch account: Invalid stored credentials.");
      }
+  },
+
+  tryAutoRelogin: async () => {
+     // Clear expired token
+     localStorage.removeItem("mailol_token");
+     set({ token: null, account: null, messages: [] });
+
+     const saved = get().savedAccounts;
+     if (saved.length === 0) return;
+
+     // Try each saved account until one succeeds
+     for (const acc of saved) {
+        if (!acc.password) continue;
+        try {
+           const res = await fetch("/api/token", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ address: acc.address, password: acc.password }),
+           });
+           if (res.ok) {
+              const { token, id } = await res.json();
+              get().setToken(token);
+              get().saveCredentials(id, acc.address, acc.password);
+              return; // Success — stop trying
+           }
+        } catch(e) {
+           continue;
+        }
+     }
+     // All failed — credentials changed or accounts deleted
   }
 }));
