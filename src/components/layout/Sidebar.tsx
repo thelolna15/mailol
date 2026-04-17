@@ -8,7 +8,7 @@ import { useMailStore } from "@/store/useMailStore";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { messages, token } = useMailStore();
+  const { messages, token, isSidebarOpen, setSidebarOpen } = useMailStore();
   const [mounted, setMounted] = useState(false);
   
   useEffect(() => {
@@ -21,7 +21,17 @@ export function Sidebar() {
   const usagePercent = Math.min((messageCount / maxMessages) * 100, 100);
 
   return (
-    <aside className="w-64 bg-surface border-r border-surface-border flex flex-col h-screen shrink-0 relative overflow-hidden">
+    <>
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-surface-border flex flex-col h-screen shrink-0 overflow-hidden transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
       {/* Logo Area */}
       <div className="p-6 flex items-center gap-3">
         <div className="bg-accent-primary p-2 rounded-lg">
@@ -36,6 +46,7 @@ export function Sidebar() {
       <nav className="flex-1 mt-4 px-3 flex flex-col gap-1">
         <Link
           href="/"
+          onClick={() => setSidebarOpen(false)}
           className={`flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
             pathname === "/" || pathname?.startsWith("/inbox")
               ? "bg-surface-hover text-primary"
@@ -46,7 +57,10 @@ export function Sidebar() {
           Inbox
         </Link>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => {
+             setSidebarOpen(false);
+             window.location.reload();
+          }}
           className="flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium text-secondary hover:text-primary hover:bg-surface-hover/50 transition-colors w-full text-left"
         >
           <RotateCw className="w-4 h-4" />
@@ -86,5 +100,6 @@ export function Sidebar() {
         </div>
       )}
     </aside>
+    </>
   );
 }

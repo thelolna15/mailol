@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Sun, Moon, LogOut, UserPlus, LogIn, Trash2, Copy, Check } from "lucide-react";
+import { Sun, Moon, LogOut, UserPlus, LogIn, Trash2, Copy, Check, Menu } from "lucide-react";
 import { useMailStore } from "@/store/useMailStore";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,7 +13,7 @@ export function TopBar() {
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
-  const { account, token, logout, setLoginModal, setCreateModal, setDeleteModal, savedAccounts, switchAccount, removeSavedAccount, messages } = useMailStore();
+  const { account, token, logout, setLoginModal, setCreateModal, setDeleteModal, savedAccounts, switchAccount, removeSavedAccount, messages, setSidebarOpen } = useMailStore();
   
   const hasUnread = messages.some((m) => !m.seen);
 
@@ -88,8 +88,15 @@ export function TopBar() {
 
   return (
     <header className="h-16 bg-background border-b border-surface-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-20 shrink-0">
-      {/* Left side: Active Email */}
+      {/* Left side: Active Email & Mobile Hamburger */}
       <div className="flex items-center gap-3">
+        <button 
+           onClick={() => setSidebarOpen(true)}
+           className="md:hidden p-2 -ml-2 rounded-md text-secondary hover:text-primary hover:bg-surface-hover transition-colors"
+           title="Open Menu"
+        >
+           <Menu className="w-5 h-5" />
+        </button>
         <div className="text-secondary hidden md:block">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect width="20" height="16" x="2" y="4" rx="2" />

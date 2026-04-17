@@ -26,6 +26,7 @@ interface MailState {
   isFetching: boolean;
   selectedId: string | null;
   eventSource: EventSource | null;
+  isSidebarOpen: boolean;
   
   // Actions
   init: () => void;
@@ -41,6 +42,7 @@ interface MailState {
   fetchMessages: () => Promise<void>;
   markMessageSeen: (id: string) => void;
   setSelectedId: (id: string | null) => void;
+  setSidebarOpen: (open: boolean) => void;
   switchAccount: (address: string, password?: string) => Promise<void>;
   tryAutoRelogin: () => Promise<void>;
 }
@@ -56,6 +58,7 @@ export const useMailStore = create<MailState>((set, get) => ({
   isFetching: false,
   selectedId: null,
   eventSource: null,
+  isSidebarOpen: false,
 
   init: () => {
      const token = get().token;
@@ -208,6 +211,7 @@ export const useMailStore = create<MailState>((set, get) => ({
   },
 
   setSelectedId: (id) => set({ selectedId: id }),
+  setSidebarOpen: (open) => set({ isSidebarOpen: open }),
 
   switchAccount: async (address, password) => {
      if (!password) {
