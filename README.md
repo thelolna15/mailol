@@ -154,7 +154,7 @@ Since you likely don't have a local SMTP server during development, use the buil
 
 ```bash
 # Inject a test email into any account
-curl "http://localhost:3000/api/dev/mock?address=yourname@thelol.me"
+curl "http://localhost:3000/api/dev/mock?address=yourname@xneine.site"
 ```
 
 This will create a fake email with HTML content and a PDF attachment in the specified inbox.
@@ -192,13 +192,13 @@ This spins up three containers:
 
 ### 3. DNS Configuration
 
-For your domain (e.g., `thelol.me`), configure these DNS records:
+For your domain (e.g., `xneine.site`), configure these DNS records:
 
 | Type | Name | Value | Priority |
 |---|---|---|---|
 | A | `@` | `YOUR_SERVER_IP` | — |
 | A | `mail` | `YOUR_SERVER_IP` | — |
-| MX | `@` | `mail.thelol.me` | 10 |
+| MX | `@` | `mail.xneine.site` | 10 |
 
 ### 4. Reverse Proxy (HTTPS)
 
@@ -208,7 +208,7 @@ Place Nginx or Caddy in front of port 3000 for TLS termination:
 <summary><strong>Caddy (recommended — automatic HTTPS)</strong></summary>
 
 ```
-thelol.me {
+xneine.site {
     reverse_proxy localhost:3000
 }
 ```
@@ -221,10 +221,10 @@ thelol.me {
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name thelol.me;
+    server_name xneine.site;
 
-    ssl_certificate /etc/letsencrypt/live/thelol.me/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/thelol.me/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/xneine.site/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/xneine.site/privkey.pem;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -272,7 +272,7 @@ All endpoints (except `/api/accounts` POST and `/api/token` POST) require a `Bea
 ```bash
 curl -X POST http://localhost:3000/api/accounts \
   -H "Content-Type: application/json" \
-  -d '{"address": "myname@thelol.me", "password": "mypassword"}'
+  -d '{"address": "myname@xneine.site", "password": "mypassword"}'
 ```
 
 #### Login
@@ -280,7 +280,7 @@ curl -X POST http://localhost:3000/api/accounts \
 ```bash
 curl -X POST http://localhost:3000/api/token \
   -H "Content-Type: application/json" \
-  -d '{"address": "myname@thelol.me", "password": "mypassword"}'
+  -d '{"address": "myname@xneine.site", "password": "mypassword"}'
 ```
 
 ### Resources
@@ -302,8 +302,8 @@ curl -X POST http://localhost:3000/api/token \
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `DOMAIN` | ✅ | `thelol.me` | Email domain for account creation |
-| `NEXT_PUBLIC_DOMAIN` | ✅ | `thelol.me` | Domain shown in the frontend UI |
+| `DOMAIN` | ✅ | `xneine.site` | Email domain for account creation |
+| `NEXT_PUBLIC_DOMAIN` | ✅ | `xneine.site` | Domain shown in the frontend UI |
 | `REDIS_URL` | ✅ | `redis://localhost:6379` | Redis connection string |
 | `JWT_SECRET` | ✅ | — | Secret key for signing JWT tokens |
 | `JWT_EXPIRY` | ❌ | `3600` | Token expiration time in seconds |

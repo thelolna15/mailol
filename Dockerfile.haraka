@@ -27,7 +27,7 @@ COPY haraka_plugin/mailol_processor.js /app/haraka/plugins/mailol_processor.js
 RUN echo "25" > /app/haraka/config/smtp.ini
 
 # 2. Set host list (domains we accept mail for)
-ARG DOMAIN=thelol.me
+ARG DOMAIN=xneine.site
 RUN echo "${DOMAIN}" > /app/haraka/config/host_list
 
 # 3. Write clean plugin list (no queue/smtp_forward — we handle delivery in mailol_processor)

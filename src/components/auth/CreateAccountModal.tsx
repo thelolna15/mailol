@@ -13,7 +13,7 @@ export function CreateAccountModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || "thelol.me";
+  const domain = process.env.NEXT_PUBLIC_DOMAIN || "xneine.site";
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
