@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     address = address.toLowerCase();
 
     // Verify domain is allowed
-    const DOMAIN = process.env.DOMAIN || "thelol.me";
+    const DOMAIN = process.env.DOMAIN || "xneine.site";
     if (!address.endsWith(`@${DOMAIN}`)) {
       return NextResponse.json(
         getHydraError(`address: Domain must be ${DOMAIN}`), 

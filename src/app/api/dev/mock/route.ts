@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const address = searchParams.get("address");
 
   if (!address) {
-    return NextResponse.json({ message: "address query param required (?address=user@thelol.me)" }, { status: 400 });
+    return NextResponse.json({ message: "address query param required (?address=user@xneine.site)" }, { status: 400 });
   }
 
   const id = uuidv4();

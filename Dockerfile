@@ -17,7 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build-time env (required for Next.js to inline public env vars)
-ARG NEXT_PUBLIC_DOMAIN=thelol.me
+ARG NEXT_PUBLIC_DOMAIN=xneine.site
 
 ENV NEXT_PUBLIC_DOMAIN=$NEXT_PUBLIC_DOMAIN
 ENV NEXT_TELEMETRY_DISABLED=1

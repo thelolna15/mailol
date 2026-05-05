@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const domainName = process.env.DOMAIN || "thelol.me";
+  const domainName = process.env.DOMAIN || "xneine.site";
   
   return NextResponse.json({
     "@context": "/contexts/Domain",

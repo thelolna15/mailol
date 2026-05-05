@@ -17,6 +17,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     // 1. Wipe Redis Core User Indexes
     await redis.del(`user:${user.address}`);
     await redis.del(`account:${id}`);
+    await redis.del(`forward:${user.address}`);
     
     // 2. Wipe Entire Sandbox Email Messages to prevent Redis orphan memleaks
     const msgIds = await redis.zrange(`inbox:${user.address}`, 0, -1);

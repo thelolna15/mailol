@@ -23,6 +23,7 @@ interface MailState {
   isLoginModalOpen: boolean;
   isCreateModalOpen: boolean;
   isDeleteModalOpen: boolean;
+  isForwardingModalOpen: boolean;
   isFetching: boolean;
   selectedId: string | null;
   eventSource: EventSource | null;
@@ -37,6 +38,7 @@ interface MailState {
   setLoginModal: (open: boolean) => void;
   setCreateModal: (open: boolean) => void;
   setDeleteModal: (open: boolean) => void;
+  setForwardingModal: (open: boolean) => void;
   logout: () => void;
   fetchProfile: () => Promise<void>;
   fetchMessages: () => Promise<void>;
@@ -55,6 +57,7 @@ export const useMailStore = create<MailState>((set, get) => ({
   isLoginModalOpen: false,
   isCreateModalOpen: false,
   isDeleteModalOpen: false,
+  isForwardingModalOpen: false,
   isFetching: false,
   selectedId: null,
   eventSource: null,
@@ -124,6 +127,7 @@ export const useMailStore = create<MailState>((set, get) => ({
   setLoginModal: (open) => set({ isLoginModalOpen: open, isCreateModalOpen: false }),
   setCreateModal: (open) => set({ isCreateModalOpen: open, isLoginModalOpen: false }),
   setDeleteModal: (open) => set({ isDeleteModalOpen: open }),
+  setForwardingModal: (open) => set({ isForwardingModalOpen: open }),
   
   logout: () => {
     localStorage.removeItem("mailol_token");
