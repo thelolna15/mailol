@@ -7,10 +7,18 @@ services:
         NEXT_PUBLIC_DOMAIN: ${DOMAIN:-xneine.site}
     container_name: mailol-app
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     networks:
       - mailol-net
+      - redis-net
+      - traefik-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.mailol.rule=Host(`${TRAEFIK_HOST:-mailol.xneine.site}`)"
+      - "traefik.http.routers.mailol.entrypoints=websecure"
+      - "traefik.http.routers.mailol.tls=true"
+      - "traefik.http.routers.mailol.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mailol.loadbalancer.server.port=3000"
     environment:
       - NODE_ENV=${NODE_ENV}
       - DOMAIN=${DOMAIN:-xneine.site}
@@ -18,6 +26,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:-super-secret-jwt-hash-value-for-mailol-production}
       - JWT_EXPIRY=${JWT_EXPIRY:-3600}
       - DEFAULT_QUOTA=${DEFAULT_QUOTA:-41943040}
+      - MAX_FORWARD_RECIPIENTS=${MAX_FORWARD_RECIPIENTS:-10}
 
   mta:
     build:
@@ -31,8 +40,11 @@ services:
       - "25:25"
     networks:
       - mailol-net
+      - redis-net
     environment:
       - REDIS_URL=${REDIS_URL}
+      - GMAIL_FORWARD_USER=${GMAIL_FORWARD_USER:-codingberes@gmail.com}
+      - GMAIL_FORWARD_APP_PASSWORD=${GMAIL_FORWARD_APP_PASSWORD:-}
 
 networks:
   mailol-net:
@@ -40,4 +52,7 @@ networks:
     driver: bridge
   redis-net:
     name: redis-net
+    external: true
+  traefik-net:
+    name: traefik-net
     external: true

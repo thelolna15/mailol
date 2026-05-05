@@ -17,7 +17,7 @@ RUN haraka -i /app/haraka
 
 # Install plugin dependencies inside the haraka dir
 WORKDIR /app/haraka
-RUN npm install ioredis mailparser uuid
+RUN npm install ioredis mailparser uuid nodemailer
 
 # Copy our custom plugin
 COPY haraka_plugin/mailol_processor.js /app/haraka/plugins/mailol_processor.js

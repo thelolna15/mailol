@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Sun, Moon, LogOut, UserPlus, LogIn, Trash2, Copy, Check, Menu } from "lucide-react";
+import { Sun, Moon, LogOut, UserPlus, LogIn, Trash2, Copy, Check, Menu, Forward } from "lucide-react";
 import { useMailStore } from "@/store/useMailStore";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,7 +13,7 @@ export function TopBar() {
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
-  const { account, token, logout, setLoginModal, setCreateModal, setDeleteModal, savedAccounts, switchAccount, removeSavedAccount, messages, setSidebarOpen } = useMailStore();
+  const { account, token, logout, setLoginModal, setCreateModal, setDeleteModal, setForwardingModal, savedAccounts, switchAccount, removeSavedAccount, messages, setSidebarOpen } = useMailStore();
   
   const hasUnread = messages.some((m) => !m.seen);
 
@@ -200,6 +200,10 @@ export function TopBar() {
                     <button onClick={() => { setLoginModal(true); setDropdownOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-blue-500 hover:bg-surface-hover transition-colors text-left tracking-wide">
                       <LogIn className="w-4.5 h-4.5" />
                       Login
+                    </button>
+                    <button onClick={() => { setForwardingModal(true); setDropdownOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-blue-500 hover:bg-surface-hover transition-colors text-left tracking-wide">
+                      <Forward className="w-4.5 h-4.5" />
+                      Forwarding
                     </button>
                     <button onClick={() => { setDeleteModal(true); setDropdownOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-status-error hover:bg-surface-hover transition-colors text-left tracking-wide">
                       <Trash2 className="w-4.5 h-4.5" />

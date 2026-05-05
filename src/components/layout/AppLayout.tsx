@@ -6,6 +6,7 @@ import { TopBar } from "./TopBar";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { DeleteAccountModal } from "@/components/auth/DeleteAccountModal";
+import { ForwardingModal } from "@/components/settings/ForwardingModal";
 import { useMailStore } from "@/store/useMailStore";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <CreateAccountModal />
       <LoginModal />
       <DeleteAccountModal />
+      <ForwardingModal />
     </div>
   );
 }
